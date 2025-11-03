@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
 	"net/http"
@@ -8,8 +9,14 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/cors"
+	"github.com/i5hwar-ka1m39h/go_scrapper/internal/database"
 	"github.com/joho/godotenv"
+	_ "github.com/lib/pq"
 )
+
+type apiConfig struct {
+	DB *database.Queries
+}
 
 func main() {
 	fmt.Println("building a go scrapper")
@@ -22,7 +29,21 @@ func main() {
 	if port == "" {
 		log.Fatal("port not found")
 	}
+	db_url := os.Getenv("DB_URL")
+	if db_url == "" {
+		log.Fatal("db url not found")
+	}
+	conn, err := sql.Open("postgres", db_url)
+	if err != nil {
+		log.Fatal("error occured while connection to database", err)
+	}
+
+	apiCfg := apiConfig{
+		DB: database.New(conn),
+	}
+
 	r := chi.NewRouter()
+
 	r.Use(cors.Handler(
 		cors.Options{
 			AllowedOrigins:   []string{"http://*", "https://*"},
@@ -34,9 +55,17 @@ func main() {
 		}))
 
 	v1router := chi.NewRouter()
+
 	v1router.Get("/ready", handleSome)
 	v1router.Get("/err", handleError)
+	v1router.Post("/users", apiCfg.handleCreateUser)
+	v1router.Get("/users", apiCfg.auth_middleware(apiCfg.handleGetUser))
+	v1router.Post("/feed", apiCfg.auth_middleware(apiCfg.handleCreateFeed))
+	v1router.Get("/feeds", apiCfg.handleGetFeeds)
+	v1router.Post("/followfeed", apiCfg.auth_middleware(apiCfg.handleCreateFeedFollows))
+
 	r.Mount("/v1", v1router)
+
 	server := &http.Server{
 		Handler: r,
 		Addr:    ":" + port,
