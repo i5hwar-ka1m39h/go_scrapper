@@ -70,3 +70,11 @@ func dbFeedFollowsToMdFeedFollows(dbFeedFollows database.FeedsFollow) FeedFollow
 		FeedId: dbFeedFollows.FeedID,
 	}
 }
+
+func dbMultFollowsToMultFeedFollows(dbFeedFollowArr []database.FeedsFollow) []FeedFollows{
+	feedFollows := []FeedFollows{}
+	for _, dbFeedFollows := range dbFeedFollowArr{
+		feedFollows = append(feedFollows, dbFeedFollowsToMdFeedFollows(dbFeedFollows))
+	}
+	return feedFollows
+}
