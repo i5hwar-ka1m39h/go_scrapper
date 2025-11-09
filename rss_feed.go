@@ -14,7 +14,7 @@ type RSSfeed struct{
 		Link string `xml:"link"`
 		Description string `xml:"description"`
 		Language string `xml:"language"`
-		Item []RSSItem `xml:"items"`
+		Item []RSSItem `xml:"item"`
 	} `xml:"channel"`
 }
 
