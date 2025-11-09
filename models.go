@@ -32,6 +32,18 @@ type FeedFollows struct{
 	FeedId uuid.UUID `json:"feed_id"`
 }
 
+type Post struct{
+	ID uuid.UUID `json:"id"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+	
+    Title string `json:"title"` 
+    Description *string `json:"description"` 
+    Published_at time.Time `json:"published_at"`
+    Url string `json:"url"`
+	Feed_id uuid.UUID `json:"feed_id"`
+}
+
 func dbUserToMdUSer(dbUser database.User) User {
 	return User{
 		ID:        dbUser.ID,
@@ -77,4 +89,29 @@ func dbMultFollowsToMultFeedFollows(dbFeedFollowArr []database.FeedsFollow) []Fe
 		feedFollows = append(feedFollows, dbFeedFollowsToMdFeedFollows(dbFeedFollows))
 	}
 	return feedFollows
+}
+
+func dbPostToMdPost(dbPost database.Post) Post{
+	var description *string
+	if dbPost.Description.Valid{
+		description = &dbPost.Description.String
+	}
+	return  Post{
+		ID: dbPost.ID,
+		CreatedAt: dbPost.CreatedAt,
+		UpdatedAt: dbPost.UpdatedAt,
+		Title: dbPost.Title,
+		Description: description,
+		Url: dbPost.Url,
+		Feed_id: dbPost.FeedID, 
+	}
+}
+
+func dbPostsToMdPosts(dbPostArr []database.Post) []Post{
+	posts := []Post{}
+	for _, post:= range dbPostArr{
+		posts = append(posts, dbPostToMdPost(post))
+	}
+
+	return posts
 }

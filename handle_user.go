@@ -48,3 +48,24 @@ func (apiConfig *apiConfig) handleGetUser(
 ) {
 	jsonResponseWriter(w, 200, dbUserToMdUSer(user))
 }
+
+
+func(cfg *apiConfig) handleGetPostForUser(w http.ResponseWriter, r *http.Request, user database.User){
+	posts , err := cfg.DB.GetPostForUser(r.Context(), database.GetPostForUserParams{
+		UserID: user.ID,
+		Limit: int32(10),
+	})
+
+	if err != nil {
+		log.Println("error occured while fetching the post", err)
+		errorResponse(w, 500, fmt.Sprintln("error occured while fetching users", err))
+		return
+	}
+
+	jsonResponseWriter(w, 200, dbPostsToMdPosts(posts))
+
+
+
+
+
+}
