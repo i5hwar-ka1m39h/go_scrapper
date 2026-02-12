@@ -56,7 +56,7 @@ func main() {
 			AllowedHeaders:   []string{"*"},
 			ExposedHeaders:   []string{"Link"},
 			AllowCredentials: false,
-			MaxAge:           300,
+			MaxAge: 300,
 		}))
 
 	v1router := chi.NewRouter()
